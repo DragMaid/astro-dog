@@ -1,0 +1,16 @@
+{
+  "name": "astro-dog",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "./run.sh"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^4.19.2",
+    "nodemon": "^3.1.4",
+    "reload": "^3.2.0"
+  }
+}
