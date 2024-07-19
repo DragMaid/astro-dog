@@ -15,6 +15,82 @@
         <h1>LOADING...</h1>
    </div>
 
-   <div class="game-screen"></div>
+   <div class="background"></div>
+
+   <div class="game-screen" game-screen>
+        <div class="background">
+            <img src="" alt="">
+        </div>
+   </div>
+
+    <div class="ui">
+        <div class="health-bar">
+            <div class="bar" health-bar>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+            </div>
+            <div class="logo">
+                <img src="assets/heart.webp" alt="">
+            </div>
+        </div>
+
+        <div class="mana-bar">
+            <div class="bar" mana-bar>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+            </div>
+            <div class="logo">
+                <img src="assets/lightning.webp" alt="">
+            </div>
+        </div>
+    </div>
+
+   <template player-template>
+       <div class="player">
+            <div class="hitbox"></div>
+            <div class="sprite">
+                <img src="" alt="" sprite>
+            </div>
+        </div>
+   </template>
+
+   <template bullet-template>
+        <div class="bullet">
+            <div class="hitbox"></div>
+            <div class="sprite">
+                <img src="" alt="" sprite>
+            </div>
+        </div>
+   </template>
+
+   <template enemy-template>
+       <div class="enemy">
+            <div class="hitbox">
+                <div class="sprite">
+                    <img src="" alt="" sprite>
+                </div>
+            </div>
+            <div class="name" name></div>
+       </div>
+   </template>
+
+   <template laser-template>
+       <div class="laser">
+            <div class="outer-laser">
+                <div class="inner-laser"></div>
+            </div>
+       </div>
+   </template>
+
 </body>
+<script src="game.js"></script>
 </html>
