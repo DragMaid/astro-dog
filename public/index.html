@@ -9,19 +9,43 @@
     <script src="/reload/reload.js"></script>
 </head>
 <body>
+    <div class="menu-screen active" menu-screen>
+        <div class="game-logo">
+            <img src="assets/logo.webp" alt="">
+        </div>
+        <div class="search-container">
+            <div class="search-bar" data-search>
+                <input type="text" id="search" placeholder="your name">
+            </div>
+            <div class="play-button" onclick="play_button_func()">PLAY</div>
+            <div class="result-wrapper" result-wrapper>
+				<div class="result-container" result-container></div>
+            </div>
+        </div>
+	</div>
+    <div class="lose-screen" lose-screen>
+        <h1>YOU LOSE</h1>
+        <div class="controller">
+            <div class="menu-button button" onclick="menu_button_func()">MENU</div>
+            <div class="restart-button button" onclick="restart_button_func()">RESTART</div>
+        </div>
+    </div>
 
    <div class="loading-screen">
         <img src="assets/dog-walk.webp" alt="">
         <h1>LOADING...</h1>
    </div>
 
-   <div class="background"></div>
+   <div class="background">
+   </div>
 
    <div class="game-screen" game-screen>
         <div class="background">
             <img src="" alt="">
         </div>
    </div>
+
+   <div class="score" score>SCORE: 0</div>
 
     <div class="ui">
         <div class="health-bar">
@@ -52,10 +76,37 @@
                 <img src="assets/lightning.webp" alt="">
             </div>
         </div>
+
+
+        <div class="bark-bar">
+            <div class="bar" bark-bar>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+                <div class="mini-bar"></div>
+            </div>
+            <div class="logo">
+                <img src="assets/dog-bark.webp" alt="">
+            </div>
+        </div>
     </div>
 
+	<template result-card-template>
+		<div class="result-card">
+			<div class="card-rank" data-rank></div>
+			<div class="card-name" data-name></div>
+			<div class="card-score" data-score></div>
+		</div>
+	</template>
+
    <template player-template>
-       <div class="player">
+       <div class="player" player>
             <div class="hitbox"></div>
             <div class="sprite">
                 <img src="" alt="" sprite>
@@ -73,7 +124,7 @@
    </template>
 
    <template enemy-template>
-       <div class="enemy">
+       <div class="enemy" enemy>
             <div class="hitbox">
                 <div class="sprite">
                     <img src="" alt="" sprite>
@@ -90,6 +141,10 @@
             </div>
        </div>
    </template>
+
+   <template bark-circle>
+       <div class="circle-blast" circle-blast></div>
+    </template>
 
 </body>
 <script src="game.js"></script>

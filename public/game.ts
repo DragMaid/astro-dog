@@ -1,3 +1,13 @@
+function nthIndex(str, pat, n) {
+    var L = str.length,
+        i = -1;
+    while (n-- && i++ < L) {
+        i = str.indexOf(pat, i);
+        if (i < 0) break;
+    }
+    return i;
+}
+
 type position_t =  [x: number, y: number];
 type size_t = [width: number, y: number];
 
@@ -9,8 +19,121 @@ var e_bullets : bullet[] = [];
 var p_bullets : any[] = [];
 var enemies : enemy[] = []; 
 var players : player[] = [];
-var laser_stack : number = 10;
+var laser_stack : number = 0;
+var bark_stack : number = 0;
+var score : number = 0;
 var laser_isshot : boolean = false;
+var bark_ready : boolean = true;
+
+var username : string;
+
+const pageURL : string = String(document.URL);
+const mainURL : string = pageURL.substring(0, nthIndex(pageURL, '/', 3));
+const ldbURL : string = mainURL + '/records';
+
+var Game : game;
+var barkid : any;
+var barkcdid : any;
+var cleanupid : any;
+
+var enemies_count : number = 0;
+
+function start_game() : void {
+    bark_ready = true;
+    laser_stack = 10;
+    bark_stack = 10;
+    Game = undefined;
+    Game = new game();
+    Game.init();
+    update_laser_bar();
+    update_bark_bar();
+}
+
+function clear_game() : void {
+    players.forEach( (entity) => { entity.destroy() } );
+    enemies.forEach( (entity) => { entity.destroy() } );
+    p_bullets.forEach( (entity) => { entity.destroy() } );
+    e_bullets.forEach( (entity) => { entity.destroy() } );
+    Game.destroy();
+
+    players = [];
+    enemies = [];
+    e_bullets = [];
+    p_bullets = [];
+
+    laser_stack = 0;
+    bark_stack = 0;
+    score = 0;
+    update_score();
+    update_bark_bar();
+    update_laser_bar();
+
+    window.clearTimeout(barkcdid);
+    window.clearInterval(barkid);
+    window.clearTimeout(cleanupid);
+}
+
+function bark() : void {
+    if (bark_ready) {
+        bark_ready = false;
+        bark_stack = 0;
+        update_bark_bar();
+        var template = document.querySelector('[bark-circle]') as HTMLTemplateElement;
+        var blast = (template.content.cloneNode(true) as HTMLElement).children[0] as HTMLElement;
+        var player = document.querySelector('[player]') as HTMLElement;
+        blast.style.left = String(players[0].get_position()[0]) + 'px';
+        blast.style.top = String(players[0].get_position()[1]) + 'px';
+        var renderer = document.querySelector('[game-screen]')
+        renderer.append(blast);
+        var bark_audio = new Audio('sounds/bark.mp3');
+        bark_audio.play();
+        e_bullets.forEach( (entity) => { entity.destroy() } );
+        barkcdid = window.setTimeout(() => { bark_ready = true }, 10000);
+        barkid = window.setInterval(() => {
+            bark_stack = Math.min(bark_stack+1, 10);
+            update_bark_bar();
+        }, 1000);
+        window.setTimeout(() => { window.clearInterval(barkid) }, 10000);
+        window.setTimeout(() => { blast.parentNode.removeChild(blast) }, 1000);
+    }
+}
+
+function open_lose_screen() : void {
+    clear_game();
+    document.querySelector("[lose-screen]").classList.toggle("active");
+}
+
+function close_lose_screen() : void {
+    document.querySelector("[lose-screen]").classList.remove("active");
+}
+
+function open_menu_screen() : void { 
+    document.querySelector("[menu-screen]").classList.toggle("active");
+    update_leader_board();
+}
+
+function close_menu_screen() : void { 
+    document.querySelector("[menu-screen]").classList.remove("active");
+}
+
+function restart_button_func() : void {
+    start_game();
+    close_lose_screen();
+}
+
+function play_button_func() : void {
+    var data = (document.getElementById("search") as HTMLInputElement).value;
+    if (data.length > 0) {
+        username = data;
+        close_menu_screen();
+        start_game();
+    }
+}
+
+function menu_button_func() : void {
+    close_lose_screen();
+    open_menu_screen();
+}
 
 function set_laser_stack(count : number) : void {
     laser_stack = count;
@@ -27,28 +150,102 @@ function update_laser_bar() : void {
     }
 }
 
-update_laser_bar();
+function update_score() : void {
+    document.querySelector("[score]").innerHTML = "SCORE: " + score;
+}
+
+function update_bark_bar() : void {
+    var bark_bar = document.querySelector("[bark-bar]");
+    for (let i=9; i>=0; i--) {
+        bark_bar.children[i]["style"].backgroundColor = "";
+    }
+    for (let i=9; i>9-bark_stack; i--) {
+        bark_bar.children[i]["style"].backgroundColor = "blue";
+    }
+}
+
+function update_leader_board() : void {
+    clear_leader_board();
+    fetch (ldbURL)
+        .then(res => res.json())
+        .then(data => {
+            var items = Object.keys(data).map(function(key) { return [key, data[key]]; });
+            items.sort(function(first, second) { return first[1] - second[1] });
+            for (let i=items.length-1; i>=0; i--) {
+                add_leader_board_card(items.length-i, items[i][0], items[i][1]);
+            }
+        })
+}
+
+function clear_leader_board() : void {
+    const container = document.querySelector("[result-container]");
+    container.innerHTML = "";
+}
+
+function add_leader_board_card(rank : number, name : string, score : number) {
+    const template = document.querySelector("[result-card-template]") as HTMLTemplateElement; 
+    const card = (template.content.cloneNode(true) as HTMLElement).children[0];
+    const card_rank = card.querySelector("[data-rank]");
+    const card_name = card.querySelector("[data-name]");
+    const card_score = card.querySelector("[data-score]");
+
+    card_rank.textContent = String(rank);
+    card_name.textContent = String(name);
+    card_score.textContent = String(score);
+
+    const container = document.querySelector("[result-container]");
+    container.append(card);
+}
+
+function update_new_record(name : string, score : number) : void {
+    var destination = mainURL + '/' + 'upload';
+    var req = new XMLHttpRequest();
+    var data = JSON.stringify({'name': name, 'score': score});
+
+    req.onreadystatechange = function () {
+        if (req.readyState == 4) {
+            if(req.status == 200) { }
+            else console.log("Problem occured while uploading record!");
+        }
+    };
+    
+    req.open("post", destination, true);
+    req.setRequestHeader("Content-Type", "application/json");
+    req.send(data);
+}
+
+update_leader_board();
+
+function save_high_score() : void {
+}
 
 class game {
     private renderer : any = document.querySelector("[game-screen]");
+    private Player : player;
+    private spawnid : any;
 
     public constructor() {
-        var Player : player = new player(this.renderer, "kato", [42, 75], [500, 500]);
-        players.push(Player);
+        this.Player = new player(this.renderer, "kato", [42, 75], [500, 500]);
+        players.push(this.Player);
     }
 
     public init() : void {
         this.game_loop();
+        this.spawnid = window.setInterval(() => { this.enemy_spawn() }, 1000);
+    }
 
-        //for (let i=0; i<100; i++) { this.enemy_spawn(); };
-        window.setInterval(() => { this.enemy_spawn() }, 1000);
-        //this.enemy_spawn()
+    public destroy() : void {
+        window.clearInterval(this.spawnid);
+        this.Player = null;
     }
 
     public enemy_spawn() : void {
+        var capacity = 50;
         var ran : number = Math.floor(Math.random() * window.innerWidth);
-        var Enemy : enemy = new enemy(this.renderer, enemies.length, "phi", [100, 100], [ran, 100]);
-        enemies.push(Enemy);
+        if (enemies_count <= capacity) {
+            var Enemy : enemy = new enemy(this.renderer, enemies.length, "phi", [100, 100], [ran, 100]);
+            enemies.push(Enemy);
+        }
     }
 
     public game_loop() : void {
@@ -113,13 +310,16 @@ abstract class entity {
 
 class player extends entity {
     protected temp : any = document.querySelector("[player-template]");
+    protected screen : any = document.querySelector("[touch]");
     protected p_temp : any = this.temp.content.cloneNode(true).children[0];
     protected sprite : any = this.p_temp.querySelector("[sprite]");
     protected s_path : string = "assets/dog.webp";
     protected pre_laser : laser;
+    protected laserid : any;
     protected shootid : any;
     protected flashid : any;
     protected renderer : any;
+
 
     public constructor(renderer : any, name : string, size : size_t, position: position_t) {
         var health : number = 3;
@@ -129,8 +329,8 @@ class player extends entity {
         this.renderer = renderer;
         this.setup();
     }
-    
 
+    
     public setup() : void {
         this.p_temp.style.left = this.get_position()[0] + "px";
         this.p_temp.style.top = this.get_position()[1] + "px";
@@ -147,14 +347,31 @@ class player extends entity {
 
         }
 
-        document.addEventListener('mousedown', (event) => {
-            if (event.button === 0 && laser_isshot === false) { this.fire_laser() };
+        this.p_temp.addEventListener('mousedown', (event) => {
+            if (event.button === 0) { this.fire_laser() }
+        });
+
+        var game_screen : any = document.querySelector('[game-screen]');
+        document.body.addEventListener('keydown',  function(e) {
+            if (e.key == ' ' || e.code == 'Space' || e.keyCode == 32) { bark() };
         });
 
         this.sprite.src = this.s_path;
         this.renderer.append(this.p_temp);
         this.auto_shoot();
         this.update_health_bar();
+
+
+        (document.querySelector('[player]') as HTMLElement).ondragstart = function() { return false; };
+    }
+
+
+    public destroy() : void {
+        laser_isshot = false;
+        this.p_temp.parentNode.removeChild(this.p_temp);
+        window.clearTimeout(this.flashid);
+        window.clearInterval(this.shootid);
+        window.clearTimeout(this.laserid);
     }
     
     public get_anchor() : position_t {
@@ -171,12 +388,12 @@ class player extends entity {
             const id : number = p_bullets.length;
             const Laser : laser = new laser(
                 this.renderer, id, "player", 
-                [60, window.innerHeight], 
+                [60, window.innerHeight + 9999], 
                 [this.get_anchor()[0], this.get_anchor()[1] - window.innerHeight/2]); 
 
             this.pre_laser = Laser;
             p_bullets.push(Laser);
-            window.setTimeout(() => {this.laser_off()}, this.pre_laser.get_laser_duration());
+            this.laserid = window.setTimeout(() => {this.laser_off()}, this.pre_laser.get_laser_duration());
         }
     }
 
@@ -188,8 +405,12 @@ class player extends entity {
 
     public laser_off() : void {
         set_laser_stack(0);
-        this.pre_laser.shutdown();
+        this.pre_laser.destroy();
         this.auto_shoot();
+    }
+
+
+    public bite() : void {
     }
 
     public auto_shoot() : void {
@@ -200,6 +421,9 @@ class player extends entity {
         const id : number = p_bullets.length;
         const Bullet : bullet = new bullet(this.renderer, id, "player", [20, 20], this.get_anchor()); 
         p_bullets.push(Bullet);
+        var audio = new Audio('sounds/gun.mp3');
+        audio.volume = 0.15;
+        audio.play();
     }
 
     public update_health_bar() : void { 
@@ -233,8 +457,12 @@ class player extends entity {
                 this.set_health(this.get_health() - 1);
                 this.take_damage_flash();
                 this.update_health_bar();
+                var audio = new Audio('sounds/dog-hurt.m4a');
+                audio.play();
                 if (this.get_health() <= 0) {
-                    console.log("you lost") 
+                    // Game over respond
+                    update_new_record(username, score);
+                    open_lose_screen();
                 };
                 return;
             }
@@ -291,6 +519,10 @@ class enemy extends entity {
         // Set the direction of entity to be either left or right
         this.set_speed(this.get_speed() * this.get_direction());
         this.clockid = window.setInterval(() => this.shoot(), 1000);
+
+        enemies_count++;
+
+        (document.querySelector('[enemy]') as HTMLElement).ondragstart = function() { return false; };
     }
 
     public get_direction() : number {
@@ -306,6 +538,9 @@ class enemy extends entity {
         var anchor : position_t = [pos[0], pos[1] + height / 2];
         const Bullet : bullet = new bullet(this.renderer, id, "enemy", [20, 20], anchor); 
         e_bullets.push(Bullet);
+        var audio = new Audio('sounds/alien-gun.mp3');
+        audio.volume = 0.3;
+        audio.play();
     }
 
     public take_damage_flash() : void { 
@@ -331,10 +566,22 @@ class enemy extends entity {
                 t_pos[1] < o_pos[1] + o_size[1]/2 &&
                 t_pos[1] + t_size[1]/2 > o_pos[1])
             {
-                p_bullets[index].destroy();
+                if (p_bullets[index].get_name() !== 'laser') { p_bullets[index].destroy() };
                 this.set_health(this.get_health() - entity.get_damage());
                 this.take_damage_flash();
-                if (this.get_health() <= 0) { this.destroy(); };
+                if (this.get_health() <= 0) { 
+                    this.destroy(); 
+                    score++;
+                    update_score();
+                    var audio = new Audio('sounds/explosion.mp3');
+                    audio.volume = 0.8;
+                    audio.play();
+                    enemies_count--;
+                    if (Math.random() < 0.1) {
+                        players[0].set_health(Math.min(players[0].get_health()+1, 3));
+                        players[0].update_health_bar();
+                    }
+                };
                 return;
             }
         });
@@ -458,17 +705,14 @@ class laser extends entity {
         this.b_temp.style.height = this.get_size()[1] + "px";
         this.renderer.append(this.b_temp);
 
-        //if (this.owner == "enemy") {
-            //this.sprite.style.transform = "scaleY(-1)";
-            //this.set_speed(this.get_speed() * -1);
-        //}
+        var audio = new Audio('sounds/laser.wav');
+        audio.volume = 0.8;
+        audio.play();
     }
 
     public get_laser_duration() : number { return this.laser_duration }
 
-    public destroy() : void { }
-
-    public shutdown() : void {
+    public destroy() : void {
         if (this.owner == "player") { delete p_bullets[this.id]; }
         else { delete e_bullets[this.id]; }
         this.b_temp.classList.add("hidden");
@@ -486,5 +730,32 @@ class laser extends entity {
     }
 }
 
-const Game : game = new game();
-Game.init();
+let mouseDown = false;
+let startY, scrollTop;
+const slider = document.querySelector('[result-wrapper]') as HTMLElement;
+
+const startDragging = (e) => {
+  mouseDown = true;
+  startY = e.pageY - slider.offsetTop;
+  scrollTop = slider.scrollTop;
+}
+
+const stopDragging = (e) => {
+  mouseDown = false;
+}
+
+const move = (e) => {
+  e.preventDefault();
+  if(!mouseDown) { return; }
+  const y = e.pageY - slider.offsetTop;
+  const scroll = y - startY;
+  slider.scrollTop = scrollTop - scroll;
+}
+
+// Add the event listeners
+slider.addEventListener('mousemove', move, false);
+slider.addEventListener('mousedown', startDragging, false);
+slider.addEventListener('mouseup', stopDragging, false);
+slider.addEventListener('mouseleave', stopDragging, false);
+
+

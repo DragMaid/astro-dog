@@ -11,11 +11,91 @@ html { height: 100%; }
 body { min-height: 100%; }
 
 .background {
+    width: 100%;
     height: 100%;
+    position: absolute;
     background-image: url("assets/space.webp");
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+}
+
+.menu-screen {
+    display: none;
+}
+
+.menu-screen.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 2;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.menu-screen .game-logo {
+}
+
+.menu-screen .search-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    aspect-ratio: 1/1;
+    height: 50%;
+}
+
+.search-bar {
+    height: 50px;
+    width: 80%;
+}
+
+.search-bar input {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    font-size: 1.8rem;
+    background-color: #4C447C;
+    border-radius: 40px;
+    color: white;
+}
+
+.play-button { 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 2.5/1;
+    height: 50px; 
+    border: 1px solid black;
+    border-radius: 30px;
+    color: white;
+    font-size: 1.8rem;
+    background-color: #408040;
+} 
+
+.play-button:hover {
+    cursor: pointer;
+    background-color: #66b266;
+    border: 1px solid white;
+}
+
+.result-container {
+    pointer-events: none;
+}
+
+.result-wrapper { 
+    height: calc(100% - 160px);
+    width: 80%;
+    border: 1px solid rgba(234, 203, 255, 0.6);
+    background-color: rgba(163, 47, 242, 0.15);
+    overflow: hidden;
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
 }
 
 .loading-screen {
@@ -25,6 +105,54 @@ body { min-height: 100%; }
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+.lose-screen {
+    display: none;
+}
+
+.lose-screen.active { 
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.lose-screen h1 {
+    color: white;
+}
+
+.controller { 
+    margin-top: 20px;
+    aspect-ratio: 6/1;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    height: 100px;
+}
+
+.button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    aspect-ratio: 2/1;
+    border: 1px solid white;
+    color: white;
+    font-size: 1.5rem;
+    border-radius: 20px;
+}
+
+.button:hover {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    cursor: pointer;
 }
 
 .loading-screen img {
@@ -41,12 +169,21 @@ body { min-height: 100%; }
     transform: translate(-50%, -50%);
     position: fixed;
     border: 1px solid black;
+    -webkit-touch-callout: none; /* Safari */
+    -webkit-user-select: none; /* Chrome */     
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; 
 }
 
 .player img {
     height: 100%;
     width: 100%;
     object-fit: cover;
+}
+
+.player * {
+    pointer-events: none;
 }
 
 .bullet {
@@ -72,6 +209,11 @@ body { min-height: 100%; }
     transform: translate(-50%, -50%);
     position: fixed;
     border: 1px solid black;
+    pointer-events: none;
+}
+
+.enemy * {
+    pointer-events: none;
 }
 
 .enemy img {
@@ -85,13 +227,11 @@ body { min-height: 100%; }
 
 .ui {
     position: absolute;
-    /*top: calc(100% - 300px);*/
-    /*left: calc(100% - 160px);*/
     top: 100%;
     left: 100%;
     transform: translate(-100%, -100%);
     padding: 20px;
-    z-index: 999;
+    z-index: 1;
 }
 
 .health-bar {
@@ -103,7 +243,16 @@ body { min-height: 100%; }
 }
 
 .mana-bar {
-    margin-top: 10px;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    width: 300px;
+}
+
+.bark-bar {
+    margin-top: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -124,6 +273,7 @@ body { min-height: 100%; }
 
 .ui img {
     aspect-ratio: 1/1;
+    width: 40px;
     height: 65%;
 }
 
@@ -174,3 +324,76 @@ body { min-height: 100%; }
   opacity: 0;
   transition: visibility 0s 0.2s, opacity 0.2s linear;
 }
+
+.hide {
+    display: none;
+}
+
+.score {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 1.8rem;
+}
+
+.result-card {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 50px;
+    color: white;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(234, 203, 255, 0.6);
+    font-size: 1.2rem;
+    pointer-events: none
+}
+
+.card-rank {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1/1;
+    height: 100%;
+    border-right: 1px solid rgba(234, 203, 255, 0.6);
+}
+
+.card-score { 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    aspect-ratio: 1.5/1;
+    border-left: 1px solid rgba(234, 203, 255, 0.6);
+}
+
+.card-name {
+    flex-grow: 1;
+    padding-left: 20px;
+}
+
+.circle-blast {
+    position: absolute;
+    aspect-ratio: 1/1;
+    width: 50px;
+    top: 100px;
+    left: 100px;
+    /*background-color: #bbb;*/
+    border-radius: 50%;
+    display: inline-block;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    animation-name: scaleup;
+    animation-duration: 1s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease;
+    border: 10px solid #bbb;
+    pointer-events: none;
+}
+
+@keyframes scaleup {
+    from {width: 50px;}
+    to {width: calc(max(100vh, 100vw) + 1000px);}
+}
+
