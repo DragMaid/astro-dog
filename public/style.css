@@ -99,12 +99,21 @@ body { min-height: 100%; }
 }
 
 .loading-screen {
-    display: none;
+    display: flex;
+    position: absolute;
     height: 100%;
     width: 100%;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    z-index: 4;
+    background-color: white;
+}
+
+.loading-screen img {
+    margin-top: 200px;
+    aspect-ratio: 1/1;
+    width: 80%;
 }
 
 .lose-screen {
@@ -153,16 +162,6 @@ body { min-height: 100%; }
     color: black;
     border: 1px solid black;
     cursor: pointer;
-}
-
-.loading-screen img {
-    aspect-ratio: 1/1;
-    width: 30%;
-}
-
-.loading-screen h1 {
-    font-size: 4rem;
-    color: black;
 }
 
 .player {
@@ -382,7 +381,7 @@ body { min-height: 100%; }
     border-radius: 50%;
     display: inline-block;
     transform: translate(-50%, -50%);
-    z-index: 5;
+    z-index: 3;
     animation-name: scaleup;
     animation-duration: 1s;
     animation-iteration-count: 1;
