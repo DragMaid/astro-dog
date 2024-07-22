@@ -36,12 +36,26 @@ var barkid : any;
 var barkcdid : any;
 var cleanupid : any;
 
+var dog_skin : string = "shiba-dog.webp";
 var enemies_count : number = 0;
+
+const enemy_names = [
+    "phii",
+    "lemai",
+    "teo",
+    "free",
+    "ngou",
+    "uit",
+    "bk",
+    "choss",
+    "trau"
+];
 
 function start_game() : void {
     bark_ready = true;
     laser_stack = 10;
     bark_stack = 10;
+    enemies_count = 0;
     Game = undefined;
     Game = new game();
     Game.init();
@@ -97,6 +111,30 @@ function bark() : void {
         window.setTimeout(() => { blast.parentNode.removeChild(blast) }, 1000);
     }
 }
+
+function option_func(self : any) : void {
+    var options = Array.from(document.querySelector('[option-container]').children);
+    options.forEach((option) => { option.classList.remove('choosen') }); 
+    self.classList.toggle('choosen');
+    dog_skin = self.getAttribute('skin');
+}
+
+function open_guide_screen() : void {
+    document.querySelector('[guide-screen]').classList.toggle('active');
+}
+
+function close_guide_screen() : void {
+    document.querySelector('[guide-screen]').classList.remove('active');
+}
+
+function open_skin_screen() : void {
+    document.querySelector('[skin-screen]').classList.toggle('active');
+}
+
+function close_skin_screen() : void {
+    document.querySelector('[skin-screen]').classList.remove('active');
+}
+
 
 function open_lose_screen() : void {
     clear_game();
@@ -240,10 +278,11 @@ class game {
     }
 
     public enemy_spawn() : void {
-        var capacity = 50;
+        var capacity : number = 50;
+        var ran_name : number = Math.floor(Math.random() * enemy_names.length);
         var ran : number = Math.floor(Math.random() * window.innerWidth);
         if (enemies_count <= capacity) {
-            var Enemy : enemy = new enemy(this.renderer, enemies.length, "phi", [100, 100], [ran, 100]);
+            var Enemy : enemy = new enemy(this.renderer, enemies.length, enemy_names[ran_name], [100, 100], [ran, 100]);
             enemies.push(Enemy);
         }
     }
@@ -313,7 +352,7 @@ class player extends entity {
     protected screen : any = document.querySelector("[touch]");
     protected p_temp : any = this.temp.content.cloneNode(true).children[0];
     protected sprite : any = this.p_temp.querySelector("[sprite]");
-    protected s_path : string = "assets/dog.webp";
+    protected s_path : string = "assets/dogs/" + dog_skin;
     protected pre_laser : laser;
     protected laserid : any;
     protected shootid : any;
@@ -389,7 +428,7 @@ class player extends entity {
             const Laser : laser = new laser(
                 this.renderer, id, "player", 
                 [60, window.innerHeight + 9999], 
-                [this.get_anchor()[0], this.get_anchor()[1] - window.innerHeight/2]); 
+                [this.get_anchor()[0], this.get_anchor()[1] - window.innerHeight/2 - 9999]); 
 
             this.pre_laser = Laser;
             p_bullets.push(Laser);
@@ -757,5 +796,4 @@ slider.addEventListener('mousemove', move, false);
 slider.addEventListener('mousedown', startDragging, false);
 slider.addEventListener('mouseup', stopDragging, false);
 slider.addEventListener('mouseleave', stopDragging, false);
-
 

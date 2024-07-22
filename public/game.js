@@ -27,11 +27,24 @@ var Game;
 var barkid;
 var barkcdid;
 var cleanupid;
+var dog_skin = "shiba-dog.webp";
 var enemies_count = 0;
+const enemy_names = [
+    "phii",
+    "lemai",
+    "teo",
+    "free",
+    "ngou",
+    "uit",
+    "bk",
+    "choss",
+    "trau"
+];
 function start_game() {
     bark_ready = true;
     laser_stack = 10;
     bark_stack = 10;
+    enemies_count = 0;
     Game = undefined;
     Game = new game();
     Game.init();
@@ -81,6 +94,24 @@ function bark() {
         window.setTimeout(() => { window.clearInterval(barkid); }, 10000);
         window.setTimeout(() => { blast.parentNode.removeChild(blast); }, 1000);
     }
+}
+function option_func(self) {
+    var options = Array.from(document.querySelector('[option-container]').children);
+    options.forEach((option) => { option.classList.remove('choosen'); });
+    self.classList.toggle('choosen');
+    dog_skin = self.getAttribute('skin');
+}
+function open_guide_screen() {
+    document.querySelector('[guide-screen]').classList.toggle('active');
+}
+function close_guide_screen() {
+    document.querySelector('[guide-screen]').classList.remove('active');
+}
+function open_skin_screen() {
+    document.querySelector('[skin-screen]').classList.toggle('active');
+}
+function close_skin_screen() {
+    document.querySelector('[skin-screen]').classList.remove('active');
 }
 function open_lose_screen() {
     clear_game();
@@ -199,9 +230,10 @@ class game {
     }
     enemy_spawn() {
         var capacity = 50;
+        var ran_name = Math.floor(Math.random() * enemy_names.length);
         var ran = Math.floor(Math.random() * window.innerWidth);
         if (enemies_count <= capacity) {
-            var Enemy = new enemy(this.renderer, enemies.length, "phi", [100, 100], [ran, 100]);
+            var Enemy = new enemy(this.renderer, enemies.length, enemy_names[ran_name], [100, 100], [ran, 100]);
             enemies.push(Enemy);
         }
     }
@@ -259,7 +291,7 @@ class player extends entity {
         this.screen = document.querySelector("[touch]");
         this.p_temp = this.temp.content.cloneNode(true).children[0];
         this.sprite = this.p_temp.querySelector("[sprite]");
-        this.s_path = "assets/dog.webp";
+        this.s_path = "assets/dogs/" + dog_skin;
         this.renderer = renderer;
         this.setup();
     }
@@ -313,7 +345,7 @@ class player extends entity {
             laser_isshot = true;
             window.clearInterval(this.shootid);
             const id = p_bullets.length;
-            const Laser = new laser(this.renderer, id, "player", [60, window.innerHeight + 9999], [this.get_anchor()[0], this.get_anchor()[1] - window.innerHeight / 2]);
+            const Laser = new laser(this.renderer, id, "player", [60, window.innerHeight + 9999], [this.get_anchor()[0], this.get_anchor()[1] - window.innerHeight / 2 - 9999]);
             this.pre_laser = Laser;
             p_bullets.push(Laser);
             this.laserid = window.setTimeout(() => { this.laser_off(); }, this.pre_laser.get_laser_duration());

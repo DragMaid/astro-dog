@@ -6,7 +6,7 @@ load_screen.style.display = "flex";
 main_screen.style.display = "none";
 
 document.addEventListener('DOMContentLoaded', () =>
-  wait(2000).then(() => {
+  wait(0).then(() => {
         load_screen.classList.toggle('hidden');
         main_screen.style.display = "block";
     })

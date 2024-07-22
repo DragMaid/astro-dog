@@ -16,8 +16,38 @@
    <div class="main-page" id="main-page">
         <script type="text/javascript" src="preload.js"></script>
        <div class="menu-screen active" menu-screen>
+            <div class="side-bar">
+                <div class="guide side-button" onclick="open_guide_screen()">
+                    <img src="assets/question.webp" alt="">
+                </div>
+                <div class="customize side-button" onclick="open_skin_screen()">
+                    <img src="assets/paint-brush.png" alt="">
+                </div>
+            </div>
            <div class="game-logo">
                <img src="assets/logo.webp" alt="">
+           </div>
+           <div class="guide-screen" guide-screen>
+                <div class="guide-panel">
+                    - Primary attack - automatic.<br>
+                    - Laser attack - activation via left click, requires 10 stacks obtained from killing enemies to refire.<br>
+                    - Bark shield - activation via pressing spacebar, cooldown time of 10 seconds, able to block projectiles.<br>
+                    - Passive healing - upon killing an enemy, has a 10% chance of gaining back 1 lost health (cannot exceed max health threshold).<br>
+                    <div class="close-button" onclick="close_guide_screen()">
+                        <img src="assets/x.webp" alt="">
+                    </div>
+                </div>
+           </div>
+           <div class="skin-screen" skin-screen>
+                <div class="select-panel">
+                    <div class="option-container" option-container>
+                        <div class="option choosen" skin="shiba-dog.webp" onclick="option_func(this)"> <img src="assets/dogs/shiba-logo.webp" alt=""> </div>
+                        <div class="option" skin="white-dog.webp" onclick="option_func(this)"> <img src="assets/dogs/white-logo.webp" alt=""> </div>
+                        <div class="option" skin="brown-dog.webp" onclick="option_func(this)"> <img src="assets/dogs/brown-logo.webp" alt=""> </div>
+                        <div class="option" skin="grey-dog.webp" onclick="option_func(this)"> <img src="assets/dogs/grey-logo.webp" alt=""> </div>
+                    </div>
+                    <div class="choose-button" onclick="close_skin_screen()">CHOOSE</div>
+                </div>
            </div>
            <div class="search-container">
                <div class="search-bar" data-search>
