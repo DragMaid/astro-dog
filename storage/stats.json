@@ -1,0 +1,6 @@
+{
+    "enemy": {"health": 100, "damage": 10, "speed": 5},
+    "player": {"health": 3, "damage": 10, "speed": 5},
+    "bullet": {"health": 20, "damage": 20, "speed": 20},
+    "laser": {"health": 20, "damage": 20, "speed": 20}
+}

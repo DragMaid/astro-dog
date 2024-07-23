@@ -11,11 +11,9 @@ const pageURL = String(document.URL);
 const mainURL = pageURL.substring(0, nthIndex(pageURL, '/', 3));
 const ldbURL = mainURL + '/records';
 const statsURL = mainURL + '/stats';
-const stats = {
-    "enemy": { "health": 100, "damage": 10, "speed": 5 },
-    "player": { "health": 3, "damage": 10, "speed": 5 },
-    "bullet": { "health": 20, "damage": 20, "speed": 20 },
-    "laser": { "health": 20, "damage": 20, "speed": 20 }
+const stats = fetch(statsURL).then(res => res.json()).then(data => { return data; });
+window.onload = async () => {
+    let wut = await stats;
 };
 const fps = 30;
 const frame_duration = 1000 / fps;
@@ -690,3 +688,4 @@ slider.addEventListener('mousemove', move, false);
 slider.addEventListener('mousedown', startDragging, false);
 slider.addEventListener('mouseup', stopDragging, false);
 slider.addEventListener('mouseleave', stopDragging, false);
+export {};

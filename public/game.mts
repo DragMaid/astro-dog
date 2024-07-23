@@ -13,13 +13,10 @@ const mainURL : string = pageURL.substring(0, nthIndex(pageURL, '/', 3));
 const ldbURL : string = mainURL + '/records';
 const statsURL : string = mainURL + '/stats';
 
-const stats = 
-{
-    "enemy": {"health": 100, "damage": 10, "speed": 5},
-    "player": {"health": 3, "damage": 10, "speed": 5},
-    "bullet": {"health": 20, "damage": 20, "speed": 20},
-    "laser": {"health": 20, "damage": 20, "speed": 20}
-}
+const stats = fetch(statsURL).then(res => res.json()).then(data => { return data });
+window.onload = async () => {
+    let wut = await stats;
+};
 
 type position_t =  [x: number, y: number];
 type size_t = [width: number, y: number];
