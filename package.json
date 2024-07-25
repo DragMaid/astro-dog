@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "./run.sh",
-    "update": "tsc --target es2017 ./public/game.ts && node ./server-dev.js"
+    "update": "tsc --target es2017 ./public/game.ts && node ./server-dev.js",
+    "deploy": "node ./server-dev.js"
   },
   "author": "",
   "license": "ISC",

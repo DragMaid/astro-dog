@@ -42,11 +42,15 @@ function respond(res, code) {
 	}); res.end(); 
 }
 
+//reload(app).then(function(reloadReturned) {
+    //server.listen(app.get('port'), function() {
+        //console.log('INFO', 'Web server listening on port ' + app.get('port'))
+    //})
+//}).catch(function(err) {
+    //console.log.log('ERROR', 'Reload could not start, could not start server/sample app\n' + err)
+//})
+
 var server = http.createServer(app)
-reload(app).then(function(reloadReturned) {
-    server.listen(app.get('port'), function() {
-        console.log('INFO', 'Web server listening on port ' + app.get('port'))
-    })
-}).catch(function(err) {
-    console.log.log('ERROR', 'Reload could not start, could not start server/sample app\n' + err)
+server.listen(app.get('port'), function() {
+    console.log('INFO', 'Web server listening on port ' + app.get('port'))
 })
